@@ -827,6 +827,7 @@ function amqp:basic_consume(opts)
 
     f.method = {
         queue = opts.queue or self.opts.queue,
+        consumer_tag = opts.consumer_tag or self.opts.consumer_tag,  -- added by Dmitry
         no_local = opts.no_local or false,
         no_ack = opts.no_ack or true,
         exclusive = opts.exclusive or false,

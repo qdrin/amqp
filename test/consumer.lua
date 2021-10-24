@@ -4,6 +4,9 @@ local fiber = require('fiber')
 local json = require('json')
 local helper = require('helpers.helper')
 
+
+local wait_time = 5
+
 local test_basic = function(test)
     test:plan(15)
 
@@ -175,7 +178,7 @@ local test_prefetch_count = function(test)
   wrk, err = get_worker(c_args)
   test:ok(ok, "Consume worker creation ok")
   wrk:consume()
-  fiber.sleep(5)
+  fiber.sleep(wait_time)
   local res
   res, err = helper.get_rmq_data()
   test:ok(res, 'rmq data get ok')
@@ -239,7 +242,7 @@ local test_consumer_tag = function(test)
   wrk, err = get_worker(c_args)
   test:ok(ok, "Consume worker creation ok")
   wrk:consume()
-  fiber.sleep(5)
+  fiber.sleep(wait_time)
   local res
   res, err = helper.get_rmq_data()
   test:ok(res, 'rmq data get ok')
