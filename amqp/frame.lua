@@ -450,7 +450,7 @@ local methods_ = {
                 b:put_i16(method.reserved1 or 0)
                 b:put_short_string(method.queue)
                 b:put_short_string(method.exchange)
-                b:put_short_string(method.routing_key or "")
+                b:put_short_string(method.routing_key)
                 b:put_bool(method.no_wait)
                 b:put_field_table(method.arguments or {})
                 return b:payload()

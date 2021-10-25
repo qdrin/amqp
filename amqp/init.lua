@@ -35,9 +35,8 @@ local function mandatory_options(opts)
     if (opts.role == nil or opts.role == "consumer") and not opts.queue then
         error("as a consumer, queue is required.")
     end
-
-    if (opts.role == "producer") and not opts.exchange then
-        error("no exchange configured.")
+    if not opts.no_bind and not (opts.exchange and opts.routing_key) then
+      error("no exchange configured.")
     end
 end
 
