@@ -72,66 +72,23 @@ local test_basic = function(test)
 end
 
 local test_no_routing_key = function(test)
-    test:plan(15)
+    test:plan(1)
 
-    test:diag("Client should be able to consume messages without routing_key")
-    local get_worker = helper.get_worker
+    test:diag("Client should not be able to consume messages with exchange and without routing_key")
 
-    local ctx = amqp.new({
-        role = "producer",
-        exchange = "work.pub",
-        routing_key = "work.rk",
-        virtual_host = "workhost",
-        passive = true,
-        auto_delete = false,
-        durable = true,
-        ssl = false,
-        user = "guest",
-        password = "guest",
-    })
     local c_args = {
-        role = "consumer",
-        queue = "work_q",
-        vhost = "workhost",
-        exchange = "work.pub",
-        durable = true,
-        passive = true,
-        ssl = false,
-        user = "read_user",
-        password = "read_user",
+      role = "consumer",
+      queue = "work_q",
+      vhost = "workhost",
+      exchange = "work.pub",
+      durable = true,
+      passive = true,
+      ssl = false,
+      user = "read_user",
+      password = "read_user",
     }
-    test:isnt(ctx, nil, 'Ctx created')
-
-    local ok, err = ctx:connect("127.0.0.1", 5672)
-    test:ok(ok, "Connect status ok")
-    test:is(err, nil, "No error on connect")
-
-    ok, err = ctx:setup()
-    test:ok(ok, "Setup status ok")
-    test:is(err, nil, "No error on setup")
-
-    ok, err = ctx:publish("Hello world!")
-    test:ok(ok, "Publish status ok")
-    test:is(err, nil, "No error on publish")
-
-    local wrk
-    wrk, err = get_worker(c_args)
-    test:ok(ok, "Consume worker creation ok")
-    wrk:consume()
-    local res = wrk.channel_out:get(0.2)
-    ok = (res == "Hello world!")
-    test:ok(ok, "Consume status ok")
-    ok, err = wrk:close()
-    test:ok(ok, "Close consumer status ok")
-    test:is(err, nil, "No error on consumer close")
-
-    ok, err = ctx:teardown()
-    test:ok(ok, "Teardown status ok")
-    test:is(err, nil, "No error on teardown")
-
-    ok, err = ctx:close()
-    test:ok(ok, "Close status ok")
-    test:is(err, nil, "No error on close")
+    local is_ok, ctx = pcall(amqp.new, c_args)
+    test:is(is_ok, false, 'Ctx creation rejected ok')
 end
 
 local test_no_binding = function(test)
@@ -219,13 +176,13 @@ local test_prefetch_count = function(test)
       role = "consumer",
       queue = "work_q",
       vhost = "workhost",
-      exchange = "work.pub",
       durable = true,
       passive = true,
       ssl = false,
       user = "read_user",
       password = "read_user",
       prefetch_count = 10,
+      no_bind = true,
   }
   test:isnt(ctx, nil, 'Ctx created')
 
@@ -283,6 +240,7 @@ local test_consumer_tag = function(test)
       queue = "work_q",
       vhost = "workhost",
       exchange = "work.pub",
+      routing_key = "work.rk",
       durable = true,
       passive = true,
       ssl = false,
