@@ -28,6 +28,7 @@ local function get_worker(args)
       prefetch_count = args.prefetch_count,
       consumer_tag = args.consumer_tag,
       callback = consume_callback_wrapper(wrk.channel_out),
+      no_bind = args.no_bind,
   })
   w_ok, w_err = wrk.ctx:connect('127.0.0.1', 5672)
   if not w_ok then return nil, w_err end

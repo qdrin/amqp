@@ -36,7 +36,7 @@ local function mandatory_options(opts)
         error("as a consumer, queue is required.")
     end
 
-    if not opts.exchange then
+    if (opts.role == "producer") and not opts.exchange then
         error("no exchange configured.")
     end
 end
@@ -401,10 +401,12 @@ local function prepare_to_consume(ctx)
         return nil, err
     end
 
-    res, err = amqp.queue_bind(ctx)
-    if not res then
-        log.error("[prepare_to_consume] queue_bind failed: %s", tostring(err))
-        return nil, err
+    if not ctx.opts.no_bind then
+      res, err = amqp.queue_bind(ctx)
+      if not res then
+          log.error("[prepare_to_consume] queue_bind failed: %s", tostring(err))
+          return nil, err
+      end
     end
 
     res, err = amqp.basic_consume(ctx)
