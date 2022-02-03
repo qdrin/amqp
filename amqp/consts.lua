@@ -162,9 +162,9 @@ consts = {
         INTERNAL_ERROR      = 541
     },
 
-    PRODUCT = "amqp-lua",
+    PRODUCT = "amqp-tarantool",
     VERSION  = "1.0",
-    COPYRIGHT = "Copyright (c) 2016 Meng Zhang @Yottaa,Inc",
+    COPYRIGHT = "Copyright (c) 2022 Dmitry Kudrin @Nexign,Inc",
     LOCALE = "en_US",
     MECHANISM_PLAIN = "PLAIN"
 

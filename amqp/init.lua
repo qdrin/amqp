@@ -36,7 +36,8 @@ local function mandatory_options(opts)
         error("as a consumer, queue is required.")
     end
     if not opts.no_bind and not (opts.exchange and opts.routing_key) then
-      error("no exchange configured.")
+        log.warn(opts)
+        error("no exchange  or routing_key configured.")
     end
 end
 
@@ -142,16 +143,20 @@ local function connection_start_ok(ctx)
     local f = frame.new_method_frame(consts.DEFAULT_CHANNEL,
                                     consts.class.CONNECTION,
                                     consts.method.connection.START_OK)
+    local properties = {
+        product = consts.PRODUCT,
+        version = consts.VERSION,
+        platform = io.popen("uname -io"):read(),
+        host = io.popen('hostname -f'):read(),
+        copyright = consts.COPYRIGHT,
+        capabilities = {
+            authentication_failure_close = true
+        }
+    }
+    for n, v in pairs(ctx.opts.properties or {}) do properties[n] = v end
+
     f.method = {
-        properties = {
-            product = consts.PRODUCT,
-            version = consts.VERSION,
-            platform = platform(),
-            copyright = consts.COPYRIGHT,
-            capabilities = {
-                authentication_failure_close = true
-            }
-        },
+        properties = properties,
         mechanism = ctx.mechanism,
         response = format("\0%s\0%s", user, password),
         locale = consts.LOCALE

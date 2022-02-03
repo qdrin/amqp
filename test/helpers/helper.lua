@@ -45,6 +45,16 @@ local function get_worker(args)
   return wrk
 end
 
+local function get_connection_data()
+  local hc = require('http.client')
+  local auth = 'Authorization: Basic Z3Vlc3Q6Z3Vlc3Q='
+  local resp = hc.get('http://localhost:15672/api/connections',
+    {headers = {Authorization='Basic Z3Vlc3Q6Z3Vlc3Q='}}
+  )
+  if resp.status ~= 200 then return nil, resp.status end
+  return json.decode(resp.body)
+end  
+
 local function get_rmq_data()
   local hc = require('http.client')
   local auth = 'Authorization: Basic Z3Vlc3Q6Z3Vlc3Q='
@@ -58,4 +68,5 @@ end
 return {
     get_worker = get_worker,
     get_rmq_data = get_rmq_data,
+    get_connection_data = get_connection_data,
 }

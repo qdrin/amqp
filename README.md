@@ -1,5 +1,6 @@
 # AMQP
 Tarantool Client for AMQP 0.9.1. Based on https://github.com/mengz0/amqp.
+Thanks to the author's for the great job.
 
 ## Typical Use Cases
 
@@ -9,11 +10,27 @@ Tarantool Client for AMQP 0.9.1. Based on https://github.com/mengz0/amqp.
 local amqp = require("amqp")
 local ctx = amqp.new({
 	role = "consumer",
-	queue = "mengz0",
-	exchange = "amq.topic",
+	queue = "work_q",
 	ssl = false,
-	user = "guest",
-	password = "guest"
+	-- if you want passive connection with no binding and queue declaring
+	user = "read_user",
+	password = "read_user",
+	passive = false,
+	-- if you have rights to declare and bind
+	-- user = "guest",
+	-- password = "guest",
+	-- passive = true,
+	-- exchange = "work.pub",
+	-- routing_key = "work.rk",
+	-- optional features
+	consumer_tag = "test_consumer_tag", 
+	properties = {
+		product = "my_cute_product",
+		version = "1.0",
+		-- Any other properties you want
+		-- Note: the platform, host, product and version properties is filled by default values: `uname -oi`, `hostname -f`, tarantool-amqp and it's version respectivly. You can change thev by your own at any moment
+	}
+
 })
 ctx:connect("127.0.0.1", 5672)
 local ok, err = ctx:consume()
@@ -25,10 +42,18 @@ local ok, err = ctx:consume()
 local amqp = require("amqp")
 local ctx = amqp.new({
 	role = "publisher",
-	exchange = "amq.topic",
+	exchange = "work.pub",
+	routing_key = "work.rk",
 	ssl = false,
+	-- the same 'fork' with declaring/binding rights
 	user = "guest",
-	password = "guest"
+	password = "guest",
+	passive = false,
+	-- OR
+	user = "read_user",
+	password = "read_user",
+	passive = true,
+	-- Just as in consumer, the properties SHOULD work, but not tested yet.
 })
 ctx:connect("127.0.0.1", 5672)
 ctx:setup()
@@ -39,7 +64,20 @@ You can also check [test/basic.lua](test/basic.lua).
 
 ## Local testing
 
-Running tests require some `RabbitMQ` instance available at `localhost:5672` with default credentials `guest:guest`. For example, you can run
-```bash
-docker run -d --hostname my-rabbit --name some-rabbit -p 5672:5672 rabbitmq:3
-```
+### Prerequisits
+
+#### RabbitMQ
+
+Running tests require configured `RabbitMQ` instance. You can find it in ./docker-amqp folder
+Just run ./rmq.sh from there
+
+#### docker
+
+Naturally You need install and working docker.
+
+#### install the rock
+`tarantoolctl rocks make`
+
+### Run tests:
+`tarantool test/publisher.lua`  # publisher test
+`tarantool test/consumer.lua`   # consumer test
