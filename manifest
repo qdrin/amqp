@@ -1,0 +1,49 @@
+commands = {}
+dependencies = {
+   amqp = {
+      ["1.0.1-1"] = {
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     5, 1, string = "5.1"
+                  }
+               }
+            },
+            name = "lua"
+         }
+      }
+   }
+}
+modules = {
+   ["amqp.buffer"] = {
+      "amqp/1.0.1-1"
+   },
+   ["amqp.consts"] = {
+      "amqp/1.0.1-1"
+   },
+   ["amqp.frame"] = {
+      "amqp/1.0.1-1"
+   },
+   ["amqp.init"] = {
+      "amqp/1.0.1-1"
+   }
+}
+repository = {
+   amqp = {
+      ["1.0.1-1"] = {
+         {
+            arch = "installed",
+            commands = {},
+            dependencies = {},
+            modules = {
+               ["amqp.buffer"] = "amqp/buffer.lua",
+               ["amqp.consts"] = "amqp/consts.lua",
+               ["amqp.frame"] = "amqp/frame.lua",
+               ["amqp.init"] = "amqp/init.lua"
+            }
+         }
+      }
+   }
+}

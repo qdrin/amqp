@@ -1,5 +1,6 @@
 local amqp = require('amqp')
 local tap = require('tap')
+local json = require('json')
 
 local test_basic = function(test)
     test:plan(11)
@@ -8,10 +9,12 @@ local test_basic = function(test)
 
     local ctx = amqp.new({
         role = "producer",
-        exchange = "amq.topic",
+        exchange = "work.pub",
+        routing_key = "work.rk",
         ssl = false,
         user = "guest",
-        password = "guest"
+        password = "guest",
+        virtual_host = "workhost",
     })
     test:isnt(ctx, nil, 'Ctx created')
 
@@ -43,8 +46,10 @@ local test_connection = function(test)
 
     local ctx = amqp.new({
         role = "consumer",
-        queue = "mengz0",
-        exchange = "amq.topic",
+        queue = "work_q",
+        exchange = "work.pub",
+        routing_key = "work.rk",
+        virtual_host = "workhost",
         ssl = false,
         user = "guest",
         password = "guest0"
@@ -85,11 +90,11 @@ local test_exchange = function(t)
         test:is(err, nil, "No error on setup")
 
         ok, err = amqp.exchange_declare(ctx, {
-            exchange = "topic.mengz",
+            exchange = "work.pub",
             passive = false,
             durable = true,
             internal = false,
-            auto_delete = true
+            auto_delete = false
         })
         test:ok(ok, "Exchange declare status ok")
         test:is(err, nil, "No error on exchange declare")
@@ -119,9 +124,9 @@ local test_exchange = function(t)
         test:is(err, nil, "No error on setup")
 
         ok, err = amqp.exchange_bind(ctx, {
-            source = "amq.topic",
-            destination = "topic.mengz",
-            routing_key = "Kiwi"
+            source = "work.pub",
+            destination = "work_dup.pub",
+            routing_key = "work.rk.new"
         })
         test:ok(ok, "Exchange bind status ok")
         test:is(err, nil, "No error on exchange bind")
@@ -229,7 +234,9 @@ local test_exchange = function(t)
 
     local options = {
         role = "producer",
-        exchange = "amq.topic",
+        exchange = "work.pub",
+        routing_key = "work.rk",
+        virtual_host = "workhost",
         ssl = false,
         user = "guest",
         password = "guest"

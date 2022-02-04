@@ -1,9 +1,10 @@
 package = 'amqp'
-version = 'scm-1'
+version = '1.0.1-1'
 
 source  = {
-    url    = '...';
-    branch = 'my-amqp';
+    url    = 'git://github.com/qdrin/amqp.git';
+    branch = 'rock';
+    -- tag = "1.0.1",
 }
 
 description = {
