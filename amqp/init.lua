@@ -472,6 +472,9 @@ function amqp:consume()
         timeouts = 0
     }
 
+    -- transaction flag to stick together properties and body frames
+    local transaction = {}
+
     while true do
 --
         ::continue::
@@ -499,7 +502,7 @@ function amqp:consume()
         if err0 == "wantread" then
             err = err0
             set_state(self, consts.state.CLOSED, consts.state.CLOSED)
-            log.error("[amqp.consume] SSL socket needs to dohandshake again.")
+            log.error("[amqp.consume] SSL socket needs to do handshake again.")
             break
         end
 
@@ -554,11 +557,15 @@ function amqp:consume()
                 log.debug("[header] class_id: %d weight: %d, body_size: %d",
                                                     tostring(f.class_id), tostring(f.weight), tostring(f.body_size))
                 log.debug("[frame.properties] %s", tostring(f.properties))
+                log.warn(f)
+                transaction.properties = f.properties
 
         elseif f.type == consts.frame.BODY_FRAME then
             if self.opts.callback then
                 local status
-                status, err0 = pcall(self.opts.callback, f.body)
+                log.warn(f)
+                status, err0 = pcall(self.opts.callback, f.body, transaction.properties)
+                transaction = {}
                 if not status then
                     log.error("calling callback failed: %s", tostring(err0))
                 end
@@ -586,7 +593,7 @@ end
 -- publisher
 --
 
-function amqp:publish(payload)
+function amqp:publish(payload, properties)
 
     local size = #payload
     local ok, err = amqp.basic_publish(self)
@@ -595,7 +602,7 @@ function amqp:publish(payload)
         return nil, err
     end
 
-    ok, err = frame.wire_header_frame(self, size)
+    ok, err = frame.wire_header_frame(self, size, properties)
     if not ok then
         log.error("[amqp.publish] failed: %s", tostring(err))
         return nil, err

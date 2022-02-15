@@ -1263,11 +1263,12 @@ function _M.wire_heartbeat(ctx)
     return bytes
 end
 
-function _M.wire_header_frame(ctx, body_size)
+function _M.wire_header_frame(ctx, body_size, properties)
     local frame = _M.new(c.frame.HEADER_FRAME,ctx.opts.channel or 1)
     frame.class_id = c.class.BASIC
     frame.weight = 0
     frame.size = body_size
+    frame.properties = properties
 
     local msg = frame:encode()
     local sock = ctx.sock

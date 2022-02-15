@@ -26,7 +26,7 @@ local test_basic = function(test)
     test:ok(ok, "Setup status ok")
     test:is(err, nil, "No error on setup")
 
-    ok, err = ctx:publish("Hello world!")
+    ok, err = ctx:publish("Hello world!", {headers = {name="value"}})
     test:ok(ok, "Publish status ok")
     test:is(err, nil, "No error on publish")
 
