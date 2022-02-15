@@ -36,7 +36,6 @@ local function mandatory_options(opts)
         error("as a consumer, queue is required.")
     end
     if not opts.no_bind and not (opts.exchange and opts.routing_key) then
-        log.warn(opts)
         error("no exchange  or routing_key configured.")
     end
 end
@@ -472,8 +471,8 @@ function amqp:consume()
         timeouts = 0
     }
 
-    -- transaction flag to stick together properties and body frames
-    local transaction = {}
+    -- header_frame to stick together properties and body frames
+    local header_frame = {}
 
     while true do
 --
@@ -557,15 +556,13 @@ function amqp:consume()
                 log.debug("[header] class_id: %d weight: %d, body_size: %d",
                                                     tostring(f.class_id), tostring(f.weight), tostring(f.body_size))
                 log.debug("[frame.properties] %s", tostring(f.properties))
-                log.warn(f)
-                transaction.properties = f.properties
+                header_frame.properties = f.properties
 
         elseif f.type == consts.frame.BODY_FRAME then
             if self.opts.callback then
                 local status
-                log.warn(f)
-                status, err0 = pcall(self.opts.callback, f.body, transaction.properties)
-                transaction = {}
+                status, err0 = pcall(self.opts.callback, f.body, header_frame.properties)
+                header_frame = {}
                 if not status then
                     log.error("calling callback failed: %s", tostring(err0))
                 end

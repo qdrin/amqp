@@ -1,5 +1,5 @@
 package = 'amqp'
-version = 'scm-1'
+version = '1.1.0-1'
 
 source  = {
     url    = 'git://github.com/qdrin/amqp.git',

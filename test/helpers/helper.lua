@@ -3,8 +3,8 @@ local fiber = require('fiber')
 local json = require('json')
 
 local function consume_callback_wrapper(ch)
-    return function(payload)
-        ch:put(payload)
+    return function(payload, properties)
+        ch:put({payload=payload, properties = properties})
     end
 end
 

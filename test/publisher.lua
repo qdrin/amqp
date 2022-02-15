@@ -26,7 +26,7 @@ local test_basic = function(test)
     test:ok(ok, "Setup status ok")
     test:is(err, nil, "No error on setup")
 
-    ok, err = ctx:publish("Hello world!", {headers = {name="value"}})
+    ok, err = ctx:publish("Hello world!")
     test:ok(ok, "Publish status ok")
     test:is(err, nil, "No error on publish")
 
@@ -37,6 +37,43 @@ local test_basic = function(test)
     ok, err = ctx:close()
     test:ok(ok, "Close status ok")
     test:is(err, nil, "No error on close")
+end
+
+local test_basic_with_headers = function(test)
+  test:plan(11)
+
+  test:diag("Client should be able to publish messages with custom headers")
+
+  local ctx = amqp.new({
+      role = "producer",
+      exchange = "work.pub",
+      routing_key = "work.rk",
+      ssl = false,
+      user = "guest",
+      password = "guest",
+      virtual_host = "workhost",
+  })
+  test:isnt(ctx, nil, 'Ctx created')
+
+  local ok, err = ctx:connect("127.0.0.1", 5672)
+  test:ok(ok, "Connect status ok")
+  test:is(err, nil, "No error on connect")
+
+  ok, err = ctx:setup()
+  test:ok(ok, "Setup status ok")
+  test:is(err, nil, "No error on setup")
+
+  ok, err = ctx:publish("Hello world!", {headers = {['header-name']="header-value"}})
+  test:ok(ok, "Publish status ok")
+  test:is(err, nil, "No error on publish")
+
+  ok, err = ctx:teardown()
+  test:ok(ok, "Teardown status ok")
+  test:is(err, nil, "No error on teardown")
+
+  ok, err = ctx:close()
+  test:ok(ok, "Close status ok")
+  test:is(err, nil, "No error on close")
 end
 
 local test_connection = function(test)
@@ -251,8 +288,9 @@ local test_exchange = function(t)
 end
 
 local test = tap.test('amqp')
-test:plan(3)
+test:plan(4)
 test:test('basic', test_basic)
+test:test('basic_with_headers', test_basic_with_headers)
 test:test('connection', test_connection)
 test:test('test_exchange', test_exchange)
 
