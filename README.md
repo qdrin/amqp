@@ -8,6 +8,12 @@ Thanks to the author's for the great job.
 
 ```lua
 local amqp = require("amqp")
+
+local function test_callback(body, properties)
+  print('body', body)
+  print('properties', require('json').encode(properties))
+end
+
 local ctx = amqp.new({
 	role = "consumer",
 	queue = "work_q",
@@ -15,6 +21,7 @@ local ctx = amqp.new({
 	-- if you want passive connection with no binding and queue declaring
 	user = "read_user",
 	password = "read_user",
+  callback = test_callback,
 	passive = false,
 	-- if you have rights to declare and bind
 	-- user = "guest",
@@ -58,6 +65,8 @@ local ctx = amqp.new({
 ctx:connect("127.0.0.1", 5672)
 ctx:setup()
 local ok, err = ctx:publish("Hello world!")
+-- if you wish to set custom message properties(e.g. headers)
+local ok, err = ctx:publish("Hello world!", {headers = {hname = "hvalue"}})
 ```
 
 You can also check [test/basic.lua](test/basic.lua).
